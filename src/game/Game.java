@@ -19,11 +19,14 @@ public class Game implements Runnable {
 	private Thread thread;
 	
 	// Game elements
+	private Player player;
 	
 	public Game(Dimension size, int scale) {
 		SCALE = scale;
 		SIZE = size;
 		INPUTS = new ArrayDeque<KeyEvent>();
+		
+		player = new Player(SIZE.width / 2, SIZE.height / 2, 5);
 	}
 	
 	public synchronized void start() {
@@ -47,12 +50,19 @@ public class Game implements Runnable {
 	}
 	
 	private void update() {
-		
+		handleInputs();
+		synchronized (player) {player.rotate(); }
 	}
 	
 	public void draw(Graphics2D g) {
 		g.setColor(new Color(50, 50, 50));
 		g.fillRect(0, 0, SIZE.width * SCALE, SIZE.height * SCALE);
+		
+		synchronized (player) {
+			
+			g.setColor(player.color);
+			g.fillPolygon(player.getDrawable(SCALE));
+		}
 	}
 	
 	public void addInput(KeyEvent e) {
@@ -61,11 +71,15 @@ public class Game implements Runnable {
 		}
 	}
 	
-	public void handleInputs() {
+	public synchronized void handleInputs() {
 		for (Iterator<KeyEvent> iterator = INPUTS.iterator(); iterator.hasNext();) {
 			KeyEvent e = iterator.next();
 			switch (e.getKeyCode()) {
-			default:
+			case KeyEvent.VK_RIGHT:
+				player.setRotationSpeed(0.1f);
+				break;
+			case KeyEvent.VK_LEFT:
+				player.setRotationSpeed(-0.1f);
 				break;
 			}
 			iterator.remove();

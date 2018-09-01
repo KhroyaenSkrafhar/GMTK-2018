@@ -9,8 +9,8 @@ public class Application {
 
 	public static void main(String[] args) {
 		
-		int scale = 10;
-		Dimension gameSize = new Dimension(50, 50);
+		int scale = 5;
+		Dimension gameSize = new Dimension(300, 180);
 		Dimension windowSize = new Dimension(gameSize.width * scale, gameSize.height * scale);
 		
 		Game game = new Game(gameSize, scale);
