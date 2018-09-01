@@ -1,7 +1,8 @@
 package game;
 
+import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.util.ArrayDeque;
 import java.util.Iterator;
@@ -49,8 +50,9 @@ public class Game implements Runnable {
 		
 	}
 	
-	public void draw(Graphics g) {
-		
+	public void draw(Graphics2D g) {
+		g.setColor(new Color(50, 50, 50));
+		g.fillRect(0, 0, SIZE.width * SCALE, SIZE.height * SCALE);
 	}
 	
 	public void addInput(KeyEvent e) {

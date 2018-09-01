@@ -2,6 +2,8 @@ package rendering;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -27,7 +29,9 @@ public class RenderingPanel extends JPanel implements KeyListener {
 	
 	@Override
 	public void paint(Graphics g) {
-		GAME.draw(g);
+		Graphics2D g2D = (Graphics2D) g;
+		g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		GAME.draw(g2D);
 		repaint();
 	}
 
