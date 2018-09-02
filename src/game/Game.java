@@ -92,7 +92,7 @@ public class Game implements Runnable {
 		synchronized (asteroids) {
 			ArrayList<Asteroid> toRemove = new ArrayList();
 			int range = 5+(int) Math.floor(currentTime/2000);
-			
+			//int range = 2;
 			if ( Math.random()*100 <range) {
 				asteroids.add(new Asteroid(SIZE.width*SCALE,SIZE.height*SCALE));
 			}
@@ -133,9 +133,10 @@ public class Game implements Runnable {
 		synchronized(asteroids) {
 			for (Asteroid asteroid : asteroids) {
 				g.setColor(asteroid.color);
-				g.fillArc((int) (asteroid.getX() - asteroid.getRadius()), (int) (asteroid.getY() - asteroid.getRadius()),
-						(int) asteroid.getRadius() * 2, (int) asteroid.getRadius() * 2,
-						0, 360);
+				//g.fillArc((int) (asteroid.getX() - asteroid.getRadius()), (int) (asteroid.getY() - asteroid.getRadius()),
+				//		(int) asteroid.getRadius() * 2, (int) asteroid.getRadius() * 2,
+				//		0, 360);
+				g.fillPolygon(asteroid.getDrawable());
 			}
 		}
 		
@@ -203,13 +204,44 @@ public class Game implements Runnable {
 		Rectangle playerBox = player.getDrawable(SCALE).getBounds();
 		for (Asteroid asteroid : asteroids) {
 			Rectangle asteroidBox = asteroid.getHitBox();
-			if (playerBox.x < asteroidBox.x + asteroidBox.width &&
-					playerBox.x + playerBox.width > asteroidBox.x &&
-					playerBox.y < asteroidBox.y + asteroidBox.height &&
-					playerBox.height + playerBox.y > asteroidBox.y) {
+			if (collide(asteroid.getAbsoluteVertices(), player.getAbsoluteVertices(SCALE))) {
 					    endGame = true;
+			}
 		}
+	}
+	
+	public float crossProduct(float[] AB, float[] AC) {
+		return AB[0] * AC[1] - AB[1] * AC[0];
+	}
+	
+	public boolean sameSide(float[] p1, float[] p2, float[] a, float[] b) {
+		float cp1 = crossProduct(getEdgeOf(a, b), getEdgeOf(a, p1));
+		float cp2 = crossProduct(getEdgeOf(a, b), getEdgeOf(a, p2));
+		
+		return (cp1 * cp2 >= 0);
+	}
+	
+	public float[] getEdgeOf(float[] A, float[] B) {
+		return new float[] {
+				B[0] - A[0],
+				B[1] - A[1]
+		};
+	}
+	
+	public boolean collide(float[][] A, float[][] B) {
+		for (int i = 0; i < 3; i++) {
+			if (!sameSide(A[i], B[0], A[(i + 1) % 3], A[(i + 2) % 3])
+					&& sameSide(B[0], B[1], A[(i + 1) % 3], A[(i + 2) % 3])
+					&& sameSide(B[1], B[2], A[(i + 1) % 3], A[(i + 2) % 3]))
+				return false;
 		}
+		for (int i = 0; i < 3; i++) {
+			if (!sameSide(B[i], A[0], B[(i + 1) % 3], B[(i + 2) % 3])
+					&& sameSide(A[0], A[1], B[(i + 1) % 3], B[(i + 2) % 3])
+					&& sameSide(A[1], A[2], B[(i + 1) % 3], B[(i + 2) % 3]))
+				return false;
+		}
+		return true;
 	}
 	
 }

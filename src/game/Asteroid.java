@@ -9,7 +9,7 @@ public class Asteroid {
 	
 	public final Color color = new Color(200, 200, 200);
 	private final float maxSpeed = 2f;
-	private final int pointNumber = 8;
+	private final int pointNumber = 3;
 	
 	private boolean alive;
 	private float speedX, speedY, x, y, angle, radius;
@@ -44,21 +44,14 @@ public class Asteroid {
 		}
 		setRadius((float) Math.random() * 10 + 10);
 		
-		for(int i = 0; i<pointNumber; i++) {
-			if(i<=pointNumber/4) {
-				vertices[i][0] = (radius-10)+ (float) Math.random()*10;
-				vertices[i][1] = (radius-10)+ (float) Math.random()*10;			
-			} else if(i<=pointNumber/2){
-				vertices[i][0] = -1*((radius-10)+ (float) Math.random()*10);
-				vertices[i][1] = (radius-10)+ (float) Math.random()*10;				
-			} else if(i<=(pointNumber*3)/10) {
-				vertices[i][0] = -1*((radius-10)+ (float) Math.random()*10);
-				vertices[i][1] = -1*((radius-10)+ (float) Math.random()*10);	
-			} else {
-				vertices[i][0] = (radius-10)+ (float) Math.random()*10;
-				vertices[i][1] = -1*((radius-10)+ (float) Math.random()*10);		
-			}
-		}	
+		vertices[0][0] = radius-2+((float) Math.random()* 2);
+        vertices[0][1] = radius-2+((float) Math.random()* 2);
+
+        vertices[1][0] = radius-2+((float) Math.random()* 2);
+        vertices[1][1] = -1* (radius-2+((float) Math.random()* 2));
+
+        vertices[2][0] = (float) Math.random()* 4-2;
+        vertices[2][1] = ((float) Math.random()* 2* radius)-radius;
 	}
 	
 	public void move(long currentTime) {		
@@ -98,9 +91,7 @@ public class Asteroid {
 			tempX[i] = (int) ((vertices[i][0] + x));
 			tempY[i] = (int) ((vertices[i][1] + y));
 		}
-		
-		System.out.println(tempX[0]+" | "+tempX[1]+" | "+tempX[2]);
-		
+
 		Polygon drawable = new Polygon(tempX, tempY, pointNumber);
 		
 		return drawable;
@@ -114,6 +105,25 @@ public class Asteroid {
 		boolean outside = false;
 		if (x<-40 || x>(width+40) || y<-40 || y>(height+40)) outside = true;
 		return outside;
+	}
+
+	public float[][] getVertices() {
+		return vertices;
+	}
+	
+	public float[][] getAbsoluteVertices() {
+		float[][] absoluteVertices = new float[vertices.length][vertices[0].length];
+		
+		for (int i = 0; i < vertices.length; i++) {
+			absoluteVertices[i][0] = (vertices[i][0] + x);
+			absoluteVertices[i][1] = (vertices[i][1] + y);
+		}
+		
+		return absoluteVertices;
+	}
+
+	public void setVertices(float[][] vertices) {
+		this.vertices = vertices;
 	}
 	
 }

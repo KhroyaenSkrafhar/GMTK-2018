@@ -263,4 +263,15 @@ public class Player {
 		this.speedY = speedY;
 	}
 	
+	public float[][] getAbsoluteVertices(int scale) {
+		float[][] absoluteVertices = new float[vertices.length][vertices[0].length];
+		
+		for (int i = 0; i < vertices.length; i++) {
+			absoluteVertices[i][0] = (vertices[i][0] + x) * scale;
+			absoluteVertices[i][1] = (vertices[i][1] + y) * scale;
+		}
+		
+		return absoluteVertices;
+	}
+	
 }
