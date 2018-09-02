@@ -91,11 +91,6 @@ public class Game implements Runnable {
 	//			+" || "+player.getX()+" ; "+player.getY());
 				player.update();
 			}
-			synchronized (foes) {
-				for (Foe foe : foes) {
-					foe.update();
-				}
-			}
 			synchronized (asteroids) {
 				ArrayList<Asteroid> toRemove = new ArrayList();
 				int range = 5+(int) Math.floor(currentTime/2000);
@@ -130,14 +125,6 @@ public class Game implements Runnable {
 			g.setColor(player.color);
 			g.fillPolygon(player.getDrawable(SCALE));
 		}
-		synchronized(foes) {
-			for (Foe foe : foes) {
-				g.setColor(Color.getHSBColor(foe.getAge(), 0.8f, 0.8f));
-				g.fillArc((int) (foe.getX() - foe.getRadius()), (int) (foe.getY() - foe.getRadius()),
-						(int) foe.getRadius() * 2, (int) foe.getRadius() * 2,
-						0, 360);
-			}
-		}
 		synchronized(asteroids) {
 			for (Asteroid asteroid : asteroids) {
 				g.setColor(asteroid.color);
@@ -151,22 +138,22 @@ public class Game implements Runnable {
 		g.setFont(new Font("TimesRoman", Font.BOLD, 30));
 		
 		g.setColor(new Color(200, 200, 200));
-		g.fillRoundRect(SIZE.width*SCALE-100, 20, 80, 40, 20, 20);
+		g.fillRoundRect(SIZE.width*SCALE-120, 20, 80, 40, 20, 20);
 		String min = String.valueOf((int) Math.floor(currentTime/60000));
 		String sec = String.valueOf((int) Math.floor(currentTime/1000)%60);
 		if (min.length()==1) min = "0"+min;
 		if (sec.length()==1) sec = "0"+sec;
-		g.drawString("Time :", SIZE.width*SCALE-200, 50);
+		g.drawString("Time :", SIZE.width*SCALE-220, 50);
 		g.setColor(new Color(50, 50, 50));
-		g.drawString(min+":"+sec, SIZE.width*SCALE-95, 50);
+		g.drawString(min+":"+sec, SIZE.width*SCALE-115, 50);
 
 		g.setColor(new Color(200, 200, 200));
-		g.fillRoundRect(SIZE.width*SCALE-100, 90, 80, 40, 20, 20);
+		g.fillRoundRect(SIZE.width*SCALE-120, 90, 80, 40, 20, 20);
 		String score = String.valueOf(this.score);
 		while(score.length()<4)score = "0"+score;
-		g.drawString("Score :", SIZE.width*SCALE-200, 120);
+		g.drawString("Score :", SIZE.width*SCALE-220, 120);
 		g.setColor(new Color(50, 50, 50));
-		g.drawString(score, SIZE.width*SCALE-90, 120);
+		g.drawString(score, SIZE.width*SCALE-110, 120);
 		
 		if(endGame) {
 			g.setFont(new Font("TimesRoman", Font.BOLD, 55));
