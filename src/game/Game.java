@@ -48,7 +48,10 @@ public class Game implements Runnable {
 		SCALE = scale;
 		SIZE = size;
 		INPUTS = new ArrayDeque<KeyEvent>();
-		
+		Init();
+	}
+	
+	public void Init() {
 		player = new Player(SIZE.width / 2, SIZE.height / 2);
 		foes = new ArrayList<Foe>();
 		foes.add(new Foe(100f, 100f, 20f));
@@ -59,6 +62,10 @@ public class Game implements Runnable {
 		currentTime = 0;
 		
 		score = 0;
+		
+		endGame = false;
+		exit = false;
+		pause = false;
 	}
 	
 	public synchronized void start() {
@@ -74,7 +81,7 @@ public class Game implements Runnable {
 		while (running) {
 			// handle UPS
 			while (System.currentTimeMillis() > nextUpdate) {
-				if(!endGame) update();
+				update();
 				nextUpdate = System.currentTimeMillis() + BLANK_TIME;
 			}
 			// render handled in rendering thread
@@ -85,7 +92,7 @@ public class Game implements Runnable {
 	
 	private void update() {
 		handleInputs();
-		if (!pause) {
+		if (!pause && !endGame) {
 			synchronized (player) {
 	//			System.out.println(player.getAccelerationX()+" ; "+player.getAccelerationY()+" ; "+player.getSpeedX()+" ; "+player.getSpeedY()
 	//			+" || "+player.getX()+" ; "+player.getY());
@@ -156,13 +163,26 @@ public class Game implements Runnable {
 		g.drawString(score, SIZE.width*SCALE-110, 120);
 		
 		if(endGame) {
+			g.setColor(new Color(50, 50, 50, 127));
+			g.fillRect(0, 0, SIZE.width * SCALE, SIZE.height * SCALE);
+			
 			g.setFont(new Font("TimesRoman", Font.BOLD, 55));
 			g.setColor(new Color(200, 200, 200));
-			g.fillRoundRect(SIZE.width*SCALE/2-200, SIZE.height*SCALE/2-100, 400, 200, 50, 50);
+			g.fillRoundRect(SIZE.width*SCALE/2-200, SIZE.height*SCALE/2-150, 400, 200, 50, 50);
+			
 			g.setColor(new Color(50, 50, 50));
-			g.drawString("GAME OVER", SIZE.width*SCALE/2-175, SIZE.height*SCALE/2-20);
+			g.drawString("GAME OVER", SIZE.width*SCALE/2-175, SIZE.height*SCALE/2-70);
+			
 			g.setFont(new Font("TimesRoman", Font.BOLD, 55));
-			g.drawString("Score : "+score, SIZE.width*SCALE/2-145, SIZE.height*SCALE/2+60);
+			g.drawString("Score : "+score, SIZE.width*SCALE/2-145, SIZE.height*SCALE/2+10);
+			
+			g.setFont(new Font("TimesRoman", Font.BOLD, 30));
+			g.setColor(new Color(200, 200, 200, 127));
+			g.drawString("Press ENTER to play again", SIZE.width*SCALE/2-175, SIZE.height*SCALE/2+100);
+			
+			g.setFont(new Font("TimesRoman", Font.BOLD, 30));
+			g.setColor(new Color(200, 200, 200, 127));
+			g.drawString("Press ESCAPE to quit", SIZE.width*SCALE/2-145, SIZE.height*SCALE/2+150);
 		}
 		
 		if (pause) {
@@ -203,11 +223,15 @@ public class Game implements Runnable {
 				player.setState(InputKey.DOWN.getValue(), (e.getID() == e.KEY_PRESSED));
 				break;
 			case KeyEvent.VK_SPACE:
-				if (e.getID() == e.KEY_PRESSED) pause = !pause;
+				if (e.getID() == e.KEY_PRESSED && !endGame) pause = !pause;
 				break;
 			case KeyEvent.VK_ESCAPE:
-				if (e.getID() == e.KEY_PRESSED && pause) exit = true;
+				if (e.getID() == e.KEY_PRESSED && (pause || endGame)) exit = true;
+				break;
+			case KeyEvent.VK_ENTER:
+				if (e.getID() == e.KEY_PRESSED && endGame) Init();
 			}
+			
 			
 			iterator.remove();
 		}
