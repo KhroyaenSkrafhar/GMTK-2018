@@ -3,10 +3,13 @@ package game;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
+
+import java.awt.Toolkit;
 
 public class Game implements Runnable {
 
@@ -23,6 +26,7 @@ public class Game implements Runnable {
 	private Player player;
 	private ArrayList<Foe> foes;
 	private ArrayList<Asteroid> asteroids;
+	private boolean endGame = false;
 	
 	public Game(Dimension size, int scale) {
 		SCALE = scale;
@@ -49,7 +53,7 @@ public class Game implements Runnable {
 		while (running) {
 			// handle UPS
 			while (System.currentTimeMillis() > nextUpdate) {
-				update();
+				if(!endGame) update();
 				nextUpdate = System.currentTimeMillis() + BLANK_TIME;
 			}
 			// render handled in rendering thread
@@ -71,12 +75,13 @@ public class Game implements Runnable {
 		}
 		synchronized (asteroids) {
 			if ( Math.random()*100 <5) {
-				asteroids.add(new Asteroid(500,500));
+				asteroids.add(new Asteroid(SIZE.width*SCALE,SIZE.height*SCALE));
 			}
 			for (Asteroid asteroid : asteroids) {
 				asteroid.move();
 			}
 		}
+		colide();
 	}
 	
 	public void draw(Graphics2D g) {
@@ -131,6 +136,19 @@ public class Game implements Runnable {
 			}
 			
 			iterator.remove();
+		}
+	}
+	
+	public void colide() {
+		Rectangle playerBox = player.getDrawable(SCALE).getBounds();
+		for (Asteroid asteroid : asteroids) {
+			Rectangle asteroidBox = asteroid.getHitBox();
+			if (playerBox.x < asteroidBox.x + asteroidBox.width &&
+					playerBox.x + playerBox.width > asteroidBox.x &&
+					playerBox.y < asteroidBox.y + asteroidBox.height &&
+					playerBox.height + playerBox.y > asteroidBox.y) {
+					    endGame = true;
+		}
 		}
 	}
 }

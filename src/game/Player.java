@@ -26,8 +26,8 @@ public class Player {
 		
 		this.vertices = new float[][] {
 			{5f, 0f},
-			{-5f, -5f},
-			{-5f, 5f}
+			{-3f, -3f},
+			{-3f, 3f}
 		};
 		
 		this.setX(x);
@@ -262,4 +262,5 @@ public class Player {
 	public void setSpeedY(float speedY) {
 		this.speedY = speedY;
 	}
+	
 }
