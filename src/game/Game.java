@@ -2,12 +2,20 @@ package game;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
+import java.net.URL;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java. util. Date;
+import java. sql. Timestamp;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 
 import java.awt.Toolkit;
 
@@ -27,6 +35,9 @@ public class Game implements Runnable {
 	private ArrayList<Foe> foes;
 	private ArrayList<Asteroid> asteroids;
 	private boolean endGame = false;
+	private long startTime;
+	private long currentTime;
+	private int score;
 	
 	public Game(Dimension size, int scale) {
 		SCALE = scale;
@@ -38,6 +49,11 @@ public class Game implements Runnable {
 		foes.add(new Foe(100f, 100f, 20f));
 		asteroids = new ArrayList<Asteroid>();
 		
+		Date date= new Date();
+		startTime = date. getTime();
+		currentTime = 0;
+		
+		score = 0;
 	}
 	
 	public synchronized void start() {
@@ -74,13 +90,27 @@ public class Game implements Runnable {
 			}
 		}
 		synchronized (asteroids) {
-			if ( Math.random()*100 <5) {
+			ArrayList<Asteroid> toRemove = new ArrayList();
+			int range = 5+(int) Math.floor(currentTime/2000);
+			
+			if ( Math.random()*100 <range) {
 				asteroids.add(new Asteroid(SIZE.width*SCALE,SIZE.height*SCALE));
 			}
 			for (Asteroid asteroid : asteroids) {
-				asteroid.move();
+				asteroid.move(currentTime);
+				if(asteroid.outSide(SIZE.width*SCALE, SIZE.height*SCALE)) {
+					toRemove.add(asteroid);
+				}
+			}
+			
+			for (Asteroid asteroid : toRemove) {
+				asteroids.remove(asteroid);
+				score += 1;
 			}
 		}
+		
+		Date date= new Date();
+		currentTime = date. getTime() - startTime;	
 		collision();
 	}
 	
@@ -106,8 +136,37 @@ public class Game implements Runnable {
 				g.fillArc((int) (asteroid.getX() - asteroid.getRadius()), (int) (asteroid.getY() - asteroid.getRadius()),
 						(int) asteroid.getRadius() * 2, (int) asteroid.getRadius() * 2,
 						0, 360);
-				g.fill(asteroid.getHitBox());
 			}
+		}
+		
+		g.setFont(new Font("TimesRoman", Font.BOLD, 30));
+		
+		g.setColor(new Color(200, 200, 200));
+		g.fillRoundRect(SIZE.width*SCALE-100, 20, 80, 40, 20, 20);
+		String min = String.valueOf((int) Math.floor(currentTime/60000));
+		String sec = String.valueOf((int) Math.floor(currentTime/1000)%60);
+		if (min.length()==1) min = "0"+min;
+		if (sec.length()==1) sec = "0"+sec;
+		g.drawString("Time :", SIZE.width*SCALE-200, 50);
+		g.setColor(new Color(50, 50, 50));
+		g.drawString(min+":"+sec, SIZE.width*SCALE-95, 50);
+
+		g.setColor(new Color(200, 200, 200));
+		g.fillRoundRect(SIZE.width*SCALE-100, 90, 80, 40, 20, 20);
+		String score = String.valueOf(this.score);
+		while(score.length()<4)score = "0"+score;
+		g.drawString("Score :", SIZE.width*SCALE-200, 120);
+		g.setColor(new Color(50, 50, 50));
+		g.drawString(score, SIZE.width*SCALE-90, 120);
+		
+		if(endGame) {
+			g.setFont(new Font("TimesRoman", Font.BOLD, 55));
+			g.setColor(new Color(200, 200, 200));
+			g.fillRoundRect(SIZE.width*SCALE/2-200, SIZE.height*SCALE/2-100, 400, 200, 50, 50);
+			g.setColor(new Color(50, 50, 50));
+			g.drawString("GAME OVER", SIZE.width*SCALE/2-175, SIZE.height*SCALE/2-20);
+			g.setFont(new Font("TimesRoman", Font.BOLD, 55));
+			g.drawString("Score : "+score, SIZE.width*SCALE/2-145, SIZE.height*SCALE/2+60);
 		}
 	}
 	
@@ -152,4 +211,5 @@ public class Game implements Runnable {
 		}
 		}
 	}
+	
 }
