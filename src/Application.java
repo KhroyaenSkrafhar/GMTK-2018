@@ -1,7 +1,10 @@
+import java.awt.AWTEvent;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 
 import javax.swing.JFrame;
+
+import javax.swing.event.*;
 
 import game.Game;
 import rendering.RenderingPanel;
@@ -20,8 +23,7 @@ public class Application {
 		
 		int scale = 5;
 		Dimension windowSize = Toolkit.getDefaultToolkit().getScreenSize();
-		System.err.println(windowSize.width + "  " + windowSize.height);
-		Dimension gameSize = new Dimension(windowSize.width / scale, windowSize.height / scale);
+		Dimension gameSize = new Dimension(windowSize.width / scale+5, windowSize.height / scale+5);
 		
 		Game game = new Game(gameSize, scale);
 		RenderingPanel panel = new RenderingPanel(windowSize, game);

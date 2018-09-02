@@ -7,7 +7,7 @@ import java.awt.Rectangle;
 
 public class Asteroid {
 	
-	public final Color color = new Color(200, 200, 200);
+	public final Color color = new Color(136, 96, 96);
 	private final float maxSpeed = 2f;
 	private final int pointNumber = 3;
 	

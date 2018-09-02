@@ -34,10 +34,15 @@ public class Game implements Runnable {
 	private Player player;
 	private ArrayList<Foe> foes;
 	private ArrayList<Asteroid> asteroids;
+	
 	private boolean endGame = false;
+	private boolean exit = false;
+	private boolean pause = false;
+	
 	private long startTime;
 	private long currentTime;
 	private int score;
+	
 	
 	public Game(Dimension size, int scale) {
 		SCALE = scale;
@@ -58,7 +63,7 @@ public class Game implements Runnable {
 	
 	public synchronized void start() {
 		thread = new Thread(this);
-		thread.start(); // calls this.run();
+		thread.start(); // calls this.run();		
 	}
 	
 	@Override
@@ -73,45 +78,48 @@ public class Game implements Runnable {
 				nextUpdate = System.currentTimeMillis() + BLANK_TIME;
 			}
 			// render handled in rendering thread
-		}
+			if(exit) running = false;
+		}	
+		System.exit(0);
 	}
 	
 	private void update() {
 		handleInputs();
-		
-		synchronized (player) {
-//			System.out.println(player.getAccelerationX()+" ; "+player.getAccelerationY()+" ; "+player.getSpeedX()+" ; "+player.getSpeedY()
-//			+" || "+player.getX()+" ; "+player.getY());
-			player.update();
-		}
-		synchronized (foes) {
-			for (Foe foe : foes) {
-				foe.update();
+		if (!pause) {
+			synchronized (player) {
+	//			System.out.println(player.getAccelerationX()+" ; "+player.getAccelerationY()+" ; "+player.getSpeedX()+" ; "+player.getSpeedY()
+	//			+" || "+player.getX()+" ; "+player.getY());
+				player.update();
 			}
-		}
-		synchronized (asteroids) {
-			ArrayList<Asteroid> toRemove = new ArrayList();
-			int range = 5+(int) Math.floor(currentTime/2000);
-			//int range = 2;
-			if ( Math.random()*100 <range) {
-				asteroids.add(new Asteroid(SIZE.width*SCALE,SIZE.height*SCALE));
+			synchronized (foes) {
+				for (Foe foe : foes) {
+					foe.update();
+				}
 			}
-			for (Asteroid asteroid : asteroids) {
-				asteroid.move(currentTime);
-				if(asteroid.outSide(SIZE.width*SCALE, SIZE.height*SCALE)) {
-					toRemove.add(asteroid);
+			synchronized (asteroids) {
+				ArrayList<Asteroid> toRemove = new ArrayList();
+				int range = 5+(int) Math.floor(currentTime/2000);
+				//int range = 2;
+				if ( Math.random()*100 <range) {
+					asteroids.add(new Asteroid(SIZE.width*SCALE,SIZE.height*SCALE));
+				}
+				for (Asteroid asteroid : asteroids) {
+					asteroid.move(currentTime);
+					if(asteroid.outSide(SIZE.width*SCALE, SIZE.height*SCALE)) {
+						toRemove.add(asteroid);
+					}
+				}
+				
+				for (Asteroid asteroid : toRemove) {
+					asteroids.remove(asteroid);
+					score += 1;
 				}
 			}
 			
-			for (Asteroid asteroid : toRemove) {
-				asteroids.remove(asteroid);
-				score += 1;
-			}
+			Date date= new Date();
+			currentTime = date. getTime() - startTime;	
+			collision();
 		}
-		
-		Date date= new Date();
-		currentTime = date. getTime() - startTime;	
-		collision();
 	}
 	
 	public void draw(Graphics2D g) {
@@ -169,6 +177,19 @@ public class Game implements Runnable {
 			g.setFont(new Font("TimesRoman", Font.BOLD, 55));
 			g.drawString("Score : "+score, SIZE.width*SCALE/2-145, SIZE.height*SCALE/2+60);
 		}
+		
+		if (pause) {
+			g.setColor(new Color(50, 50, 50, 127));
+			g.fillRect(0, 0, SIZE.width * SCALE, SIZE.height * SCALE);
+			
+			g.setFont(new Font("TimesRoman", Font.BOLD, 55));
+			g.setColor(new Color(200, 200, 200, 127));
+			g.drawString("PAUSE", SIZE.width*SCALE/2-90, SIZE.height*SCALE/2-30);
+			
+			g.setFont(new Font("TimesRoman", Font.BOLD, 30));
+			g.setColor(new Color(200, 200, 200, 127));
+			g.drawString("Press ESCAPE to quit ...", SIZE.width*SCALE/2-150, SIZE.height*SCALE/2+70);
+		}
 	}
 	
 	public void addInput(KeyEvent e) {
@@ -194,6 +215,11 @@ public class Game implements Runnable {
 			case KeyEvent.VK_DOWN:
 				player.setState(InputKey.DOWN.getValue(), (e.getID() == e.KEY_PRESSED));
 				break;
+			case KeyEvent.VK_SPACE:
+				if (e.getID() == e.KEY_PRESSED) pause = !pause;
+				break;
+			case KeyEvent.VK_ESCAPE:
+				if (e.getID() == e.KEY_PRESSED && pause) exit = true;
 			}
 			
 			iterator.remove();
