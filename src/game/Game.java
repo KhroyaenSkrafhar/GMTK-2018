@@ -81,7 +81,7 @@ public class Game implements Runnable {
 				asteroid.move();
 			}
 		}
-		colide();
+		collision();
 	}
 	
 	public void draw(Graphics2D g) {
@@ -106,6 +106,7 @@ public class Game implements Runnable {
 				g.fillArc((int) (asteroid.getX() - asteroid.getRadius()), (int) (asteroid.getY() - asteroid.getRadius()),
 						(int) asteroid.getRadius() * 2, (int) asteroid.getRadius() * 2,
 						0, 360);
+				g.fill(asteroid.getHitBox());
 			}
 		}
 	}
@@ -139,7 +140,7 @@ public class Game implements Runnable {
 		}
 	}
 	
-	public void colide() {
+	public void collision() {
 		Rectangle playerBox = player.getDrawable(SCALE).getBounds();
 		for (Asteroid asteroid : asteroids) {
 			Rectangle asteroidBox = asteroid.getHitBox();

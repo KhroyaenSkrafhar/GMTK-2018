@@ -107,6 +107,6 @@ public class Asteroid {
 	}
 	
 	public Rectangle getHitBox() {
-		return new Rectangle((int) Math.floor(-radius) + (int) x, (int) Math.floor(-radius) + (int) y, (int) Math.floor(radius*radius), (int) Math.floor(radius*radius));
+		return new Rectangle((int) Math.floor(-radius) + (int) x+2, (int) Math.floor(-radius) + (int) y+2, (int) Math.floor(radius+radius)-4, (int) Math.floor(radius+radius)-4);
 	}
 }
