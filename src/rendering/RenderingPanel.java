@@ -10,6 +10,7 @@ import java.awt.event.KeyListener;
 import javax.swing.JPanel;
 
 import game.Game;
+import javafx.scene.effect.ColorAdjust;
 
 public class RenderingPanel extends JPanel implements KeyListener {
 	
@@ -31,6 +32,7 @@ public class RenderingPanel extends JPanel implements KeyListener {
 	public void paint(Graphics g) {
 		Graphics2D g2D = (Graphics2D) g;
 		g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		
 		GAME.draw(g2D);
 		repaint();
 	}

@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 public class Game implements Runnable {
@@ -20,13 +21,19 @@ public class Game implements Runnable {
 	
 	// Game elements
 	private Player player;
+	private ArrayList<Foe> foes;
+	private ArrayList<Asteroid> asteroids;
 	
 	public Game(Dimension size, int scale) {
 		SCALE = scale;
 		SIZE = size;
 		INPUTS = new ArrayDeque<KeyEvent>();
 		
-		player = new Player(SIZE.width / 2, SIZE.height / 2, 5);
+		player = new Player(SIZE.width / 2, SIZE.height / 2);
+		foes = new ArrayList<Foe>();
+		foes.add(new Foe(100f, 100f, 20f));
+		asteroids = new ArrayList<Asteroid>();
+		
 	}
 	
 	public synchronized void start() {
@@ -51,7 +58,25 @@ public class Game implements Runnable {
 	
 	private void update() {
 		handleInputs();
-		synchronized (player) {player.rotate(); }
+		
+		synchronized (player) {
+//			System.out.println(player.getAccelerationX()+" ; "+player.getAccelerationY()+" ; "+player.getSpeedX()+" ; "+player.getSpeedY()
+//			+" || "+player.getX()+" ; "+player.getY());
+			player.update();
+		}
+		synchronized (foes) {
+			for (Foe foe : foes) {
+				foe.update();
+			}
+		}
+		synchronized (asteroids) {
+			if ( Math.random()*100 <5) {
+				asteroids.add(new Asteroid(500,500));
+			}
+			for (Asteroid asteroid : asteroids) {
+				asteroid.move();
+			}
+		}
 	}
 	
 	public void draw(Graphics2D g) {
@@ -59,9 +84,24 @@ public class Game implements Runnable {
 		g.fillRect(0, 0, SIZE.width * SCALE, SIZE.height * SCALE);
 		
 		synchronized (player) {
-			
 			g.setColor(player.color);
 			g.fillPolygon(player.getDrawable(SCALE));
+		}
+		synchronized(foes) {
+			for (Foe foe : foes) {
+				g.setColor(Color.getHSBColor(foe.getAge(), 0.8f, 0.8f));
+				g.fillArc((int) (foe.getX() - foe.getRadius()), (int) (foe.getY() - foe.getRadius()),
+						(int) foe.getRadius() * 2, (int) foe.getRadius() * 2,
+						0, 360);
+			}
+		}
+		synchronized(asteroids) {
+			for (Asteroid asteroid : asteroids) {
+				g.setColor(asteroid.color);
+				g.fillArc((int) (asteroid.getX() - asteroid.getRadius()), (int) (asteroid.getY() - asteroid.getRadius()),
+						(int) asteroid.getRadius() * 2, (int) asteroid.getRadius() * 2,
+						0, 360);
+			}
 		}
 	}
 	
@@ -74,16 +114,23 @@ public class Game implements Runnable {
 	public synchronized void handleInputs() {
 		for (Iterator<KeyEvent> iterator = INPUTS.iterator(); iterator.hasNext();) {
 			KeyEvent e = iterator.next();
+			
 			switch (e.getKeyCode()) {
 			case KeyEvent.VK_RIGHT:
-				player.setRotationSpeed(0.1f);
+				player.setState(InputKey.RIGHT.getValue(), (e.getID() == e.KEY_PRESSED));
 				break;
 			case KeyEvent.VK_LEFT:
-				player.setRotationSpeed(-0.1f);
+				player.setState(InputKey.LEFT.getValue(), (e.getID() == e.KEY_PRESSED));
+				break;
+			case KeyEvent.VK_UP:
+				player.setState(InputKey.UP.getValue(), (e.getID() == e.KEY_PRESSED));
+				break;
+			case KeyEvent.VK_DOWN:
+				player.setState(InputKey.DOWN.getValue(), (e.getID() == e.KEY_PRESSED));
 				break;
 			}
+			
 			iterator.remove();
 		}
 	}
-
 }
