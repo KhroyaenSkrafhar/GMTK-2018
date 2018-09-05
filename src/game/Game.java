@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -238,11 +239,9 @@ public class Game implements Runnable {
 	}
 	
 	public void collision() {
-		Rectangle playerBox = player.getDrawable(SCALE).getBounds();
 		for (Asteroid asteroid : asteroids) {
-			Rectangle asteroidBox = asteroid.getHitBox();
-			if (collide(asteroid.getAbsoluteVertices(), player.getAbsoluteVertices(SCALE))) {
-					    endGame = true;
+			if (multiCollide(player.getAbsoluteVertices(SCALE), asteroid.getAbsoluteVertices(),true)) {
+				endGame = true;
 			}
 		}
 	}
@@ -279,6 +278,38 @@ public class Game implements Runnable {
 				return false;
 		}
 		return true;
+	}
+	
+	public boolean multiCollide (float [][] A, float [][] B, boolean first) {
+		System.out.println(A.length+" __ "+B.length);
+		boolean collide = false;
+		if (A.length>=3 && B.length>=3) {
+			if (first == true) {
+				if (A.length == 3) {
+					if (B.length == 3) {
+						collide = collide || collide(B,A);
+					} else {
+						collide = collide || multiCollide(B,A,true);
+					}
+				} else {
+					float[][] temp = {A[A.length-1], A[0], A[1]};
+					collide = collide || multiCollide(B,temp,true) || multiCollide(Arrays.copyOfRange(A,1,A.length),B,false);
+				}
+			} else {
+				if(A.length == 3) {
+					if (B.length == 3) {
+						collide = collide || collide(B,A);
+					} else {
+						collide = collide || multiCollide(B,A,true);
+					}
+				} else if (A.length == 4) {
+					collide = collide || multiCollide(B,Arrays.copyOfRange(A, 0, 3),true) || multiCollide(B,Arrays.copyOfRange(A, 1, 4),true);
+				} else {
+					collide = collide || multiCollide(B,Arrays.copyOfRange(A, 0, 3),true) || multiCollide(Arrays.copyOfRange(A, 2, A.length), B, false);
+				}
+			}
+		}
+		return collide;
 	}
 	
 }

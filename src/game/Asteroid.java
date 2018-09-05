@@ -9,7 +9,7 @@ public class Asteroid {
 	
 	public final Color color = new Color(136, 96, 96);
 	private final float maxSpeed = 2f;
-	private final int pointNumber = 3;
+	private final int pointNumber = 6;
 	
 	private boolean alive;
 	private float speedX, speedY, x, y, angle, radius;
@@ -42,16 +42,34 @@ public class Asteroid {
 			speedX = (float) (Math.random()*2*maxSpeed)-maxSpeed;
 			speedY = (float) -(Math.random()*maxSpeed);
 		}
-		setRadius((float) Math.random() * 10 + 10);
+		setRadius((float) Math.random() * 40 + 10);
 		
-		vertices[0][0] = radius-2+((float) Math.random()* 2);
-        vertices[0][1] = radius-2+((float) Math.random()* 2);
+		//vertices[0][0] = radius-2+((float) Math.random()* 2);
+        //vertices[0][1] = radius-2+((float) Math.random()* 2);
 
-        vertices[1][0] = radius-2+((float) Math.random()* 2);
-        vertices[1][1] = -1* (radius-2+((float) Math.random()* 2));
+        //vertices[1][0] = radius-2+((float) Math.random()* 2);
+        //vertices[1][1] = -1* (radius-2+((float) Math.random()* 2));
 
-        vertices[2][0] = (float) Math.random()* 4-2;
-        vertices[2][1] = ((float) Math.random()* 2* radius)-radius;
+        //vertices[2][0] = (float) Math.random()* 4-2;
+        //vertices[2][1] = ((float) Math.random()* 2* radius)-radius;
+		
+		vertices[0][0] = -radius;
+        vertices[0][1] = 0;
+
+        vertices[1][0] = -radius/2;
+        vertices[1][1] = -radius;
+
+        vertices[2][0] = radius/2;
+        vertices[2][1] = -radius;
+        
+		vertices[3][0] = radius;
+        vertices[3][1] = 0;
+
+        vertices[4][0] = radius/2;
+        vertices[4][1] = radius;
+
+        vertices[5][0] = -radius/2;
+        vertices[5][1] = radius;
 	}
 	
 	public void move(long currentTime) {		
@@ -125,5 +143,7 @@ public class Asteroid {
 	public void setVertices(float[][] vertices) {
 		this.vertices = vertices;
 	}
+	
+
 	
 }
